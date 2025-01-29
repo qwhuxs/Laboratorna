@@ -88,7 +88,6 @@ def is_valid_username(username):
 def is_valid_password(password):
     return len(password) >= 6
 
-
 # Рендеримо головну сторінку
 @app.route('/')
 def index():
