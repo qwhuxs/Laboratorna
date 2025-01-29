@@ -140,7 +140,9 @@ def logout():
 
 @app.route('/edit_album/<int:album_id>', methods=['GET', 'POST'])
 def edit_album(album_id):
-    album = AlbumManager.get_album_by_id(album_id)
+    albums = AlbumManager.load_albums()
+    album = next((a for a in albums if a['id'] == album_id), None)
+    
     if album is None:
         flash('Альбом не знайдено!')
         return redirect(url_for('albums'))
@@ -149,11 +151,10 @@ def edit_album(album_id):
         album['title'] = request.form['title']
         album['description'] = request.form['description']
         album['release_date'] = request.form['release_date']
-        albums = AlbumManager.load_albums()
-        AlbumManager.save_albums(albums)
+        AlbumManager.save_albums(albums)  # Оновлені дані тепер збережені
         flash('Альбом оновлено!')
         return redirect(url_for('albums'))
-
+    
     return render_template('edit_album.html', album=album)
 
 
