@@ -1,4 +1,5 @@
 import json
+import re
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
 app = Flask(__name__)
@@ -80,33 +81,28 @@ class UserManager:
         users = UserManager.load_users()
         return username in users and users[username]['password'] == password
 
+# Валідація введених даних
+def is_valid_username(username):
+    return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))
+
+def is_valid_password(password):
+    return len(password) >= 6
+
 # Рендеримо головну сторінку
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-
-@app.route('/history')
-def history():
-    return render_template('history.html')
-
-
-@app.route('/albums')
-def albums():
-    albums = AlbumManager.load_albums()
-    return render_template('album.html', albums=albums)
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        
+        if not is_valid_username(username) or not is_valid_password(password):
+            flash('Некоректні дані!')
+            return redirect(url_for('register'))
+        
         if UserManager.register_user(username, password):
             flash('Реєстрація успішна!')
             return redirect(url_for('login'))
