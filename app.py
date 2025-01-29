@@ -8,21 +8,30 @@ app.secret_key = 'your_secret_key'
 ALBUMS_FILE = 'albums.json'
 USERS_FILE = 'users.json'
 
+# Клас для роботи з JSON даними
+class JSONManager:
+    @staticmethod
+    def load_data(file_path, default_data):
+        try:
+            with open(file_path, 'r') as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return default_data
+
+    @staticmethod
+    def save_data(file_path, data):
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
 
 # Клас для роботи з альбомами
 class AlbumManager:
     @staticmethod
     def load_albums():
-        try:
-            with open(ALBUMS_FILE, 'r') as file:
-                return json.load(file)
-        except FileNotFoundError:
-            return []  
+        return JSONManager.load_data(ALBUMS_FILE, [])
 
     @staticmethod
     def save_albums(albums):
-        with open(ALBUMS_FILE, 'w') as file:
-            json.dump(albums, file, indent=4)
+        JSONManager.save_data(ALBUMS_FILE, albums)
 
     @staticmethod
     def get_album_by_id(album_id):
@@ -47,21 +56,15 @@ class AlbumManager:
         albums.append(new_album)
         AlbumManager.save_albums(albums)
 
-
 # Клас для роботи з користувачами
 class UserManager:
     @staticmethod
     def load_users():
-        try:
-            with open(USERS_FILE, 'r') as file:
-                return json.load(file)
-        except FileNotFoundError:
-            return {"admin": {"password": "admin123", "role": "admin"}}  
+        return JSONManager.load_data(USERS_FILE, {"admin": {"password": "admin123", "role": "admin"}})
 
     @staticmethod
     def save_users(users):
-        with open(USERS_FILE, 'w') as file:
-            json.dump(users, file, indent=4)
+        JSONManager.save_data(USERS_FILE, users)
 
     @staticmethod
     def register_user(username, password):
@@ -76,7 +79,6 @@ class UserManager:
     def authenticate_user(username, password):
         users = UserManager.load_users()
         return username in users and users[username]['password'] == password
-
 
 # Рендеримо головну сторінку
 @app.route('/')
