@@ -1,9 +1,10 @@
 import json
 import re
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')  
 
 # Файли для зберігання даних
 ALBUMS_FILE = 'albums.json'
@@ -83,10 +84,10 @@ class UserManager:
 
 # Валідація введених даних
 def is_valid_username(username):
-    return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))
+    return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))  
 
 def is_valid_password(password):
-    return len(password) >= 6
+    return len(password) >= 6  
 
 # Рендеримо головну сторінку
 @app.route('/')
@@ -110,7 +111,6 @@ def register():
             flash('Користувач вже існує!')
             return redirect(url_for('register'))
     return render_template('register.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -147,7 +147,7 @@ def edit_album(album_id):
         album['title'] = request.form['title']
         album['description'] = request.form['description']
         album['release_date'] = request.form['release_date']
-        AlbumManager.save_albums(albums)  # Оновлені дані тепер збережені
+        AlbumManager.save_albums(albums)  
         flash('Альбом оновлено!')
         return redirect(url_for('albums'))
     
